@@ -3,7 +3,7 @@
  - For offline use (only works with initial list, the shopping list) needs a downloaded Fontawesome and Jquery
  - Code is written mostly in Spanish
  ## Requires:
- ### A table in DynamoDB with the following columns: id, category, name, quantity, isInShoppingList.
+ ### A table in DynamoDB (uses this columns: id, category, name, quantity, isInShoppingList, purchased).
  ### API resources and methods connected with DynamoDB:
  #### additem (POST)
  - Action: PutItem
@@ -15,10 +15,10 @@
     "id": {
       "N": "$input.path('$.id')"
     },
-    "nombre": {
+    "name": {
       "S": "$input.path('$.name')"
     },
-    "categoria": {
+    "category": {
       "S": "$input.path('$.category')"
     }
   }
@@ -51,9 +51,9 @@
   "UpdateExpression": "set #L = :l, #QT = :qt"
 }
  ```
-#### deleteitem
+#### deleteitem (DELETE)
 - Action: DeleteItem
- - Mapping template:
+- Mapping template:
  ```
  {
   "TableName": "products",
@@ -64,3 +64,105 @@
   }
 }
  ```
+#### getall (GET)
+- Action: Scan
+- Mapping template:
+```
+{
+  "TableName":"products"
+}
+```
+#### getitem (POST)
+- Action: GetItem
+- Mapping template:
+```
+{
+  "TableName":"products",
+  "Key": {
+    "id": {
+      "N": "$input.params('id')"
+    }
+  }
+}
+```
+#### getlist (GET)
+- Action: Scan
+- Mapping template:
+```
+{
+  "TableName":"products",
+  "ExpressionAttributeValues": {
+    ":l": {
+      "N": "1"
+    }
+  },
+  "FilterExpression": "inShoppingList = :l"
+}
+```
+#### removefromlist (POST)
+- Action: UpdateItem
+- Mapping template:
+```
+{
+  "TableName":"products",
+  "Key": {
+    "id": {
+      "N": "$input.path('$.id')"
+    }
+  },
+  "ExpressionAttributeNames": {
+    "#L": "inShoppingList",
+    "#QT": "quantity",
+    "#C": "purchased"
+  },
+  "UpdateExpression": "remove #L, #QT, #C"
+}
+```
+#### setcheck (POST)
+- Action: UpdateItem
+- Mapping template:
+```
+{
+  "TableName":"products",
+  "Key": {
+    "id": {
+      "N": "$input.path('$.id')"
+    }
+  },
+  "ExpressionAttributeNames": {
+    "#C": "purchased"
+  },
+  "ExpressionAttributeValues": {
+    ":c": {
+      "N": "$input.path('$.purchased')"
+    }
+  },
+  "UpdateExpression": "set #C = :c"
+}
+```
+#### updateitem (POST)
+- Action: UpdateItem
+- Mapping template:
+```
+{
+  "TableName":"products",
+  "Key": {
+    "id": {
+      "N": "$input.path('$.id')"
+    }
+  },
+  "ExpressionAttributeNames": {
+    "#N": "name",
+    "#CAT": "category"
+  },
+  "ExpressionAttributeValues": {
+    ":n": {
+      "S": "$input.path('$.name')"
+    },
+    ":cat": {
+      "S": "$input.path('$.category')"
+    }
+  },
+  "UpdateExpression": "set #N = :n, #CAT = :cat"
+}
+```
