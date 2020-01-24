@@ -3,7 +3,7 @@
  - For offline use (only works with initial list, the shopping list) needs a downloaded Fontawesome and Jquery
  - Code is written mostly in Spanish
  ## Requires:
- ### A table in DynamoDB (uses this columns: id, category, name, quantity, isInShoppingList, purchased).
+ ### A table in DynamoDB (uses this columns: id, category, name, quantity, inShoppingList, purchased).
  ### API resources and methods connected with DynamoDB:
  #### additem (POST)
  - Action: PutItem
